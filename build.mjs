@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+const root=path.dirname(fileURLToPath(import.meta.url));
+const files={'index.html':'text/html; charset=utf-8','style.css':'text/css; charset=utf-8','contact.js':'text/javascript; charset=utf-8','assets/mark.svg':'image/svg+xml','assets/wordmark.svg':'image/svg+xml'};
+const assets=Object.fromEntries(Object.entries(files).map(([name,type])=>['/'+name,{type,body:fs.readFileSync(path.join(root,'dist',name),'utf8')} ]));
+const worker=fs.readFileSync(path.join(root,'src/worker.mjs'),'utf8').replace('/* SITE_ASSETS */ {}',JSON.stringify(assets));
+fs.mkdirSync(path.join(root,'dist/server'),{recursive:true});
+fs.writeFileSync(path.join(root,'dist/server/index.js'),worker);
+console.log('Built Pattern page and contact endpoint.');
